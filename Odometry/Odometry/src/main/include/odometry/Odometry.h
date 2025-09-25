@@ -4,22 +4,17 @@
 #include "hardware/IGyroSensor.h"
 
 class Odometry {
-    private:
-        Pose pose;
-        double lastDistance;
-        IGyroSensor& gyro;
-        std::vector<IEncoderSensor*> encoders;
+private:
+    IEncoderSensor* encoder;
+    IGyroSensor* gyro;
+    Pose pose;
+    double lastDistance;
+    double lastHeading;
 
-        // For tracking previous values
-        std::vector<double> prevEncoderDistances;
-        double prevHeading;
+public:
+    Odometry(IEncoderSensor* enc, IGyroSensor* g);
 
-    public:
-        Odometry(IGyroSensor& gyro, const std::vector<IEncoderSensor*>& encoders);
-
-        void update();
-
-        const Pose& getPose() const;
-
-        void reset(double x = 0.0, double y = 0.0, double heading = 0.0);
+    void update();               // Call every cycle to update pose
+    Pose getPose() const;        // Returns a copy of current pose
+    void resetPose(double x = 0, double y = 0, double heading = 0);
 };

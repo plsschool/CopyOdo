@@ -24,5 +24,5 @@ public:
 
     Vector2D& operator+=(const Vector2D& other);
 
-    Vector2D Vector2D::rotate(double angle) const;
+    Vector2D rotate(double angle) const;
 };

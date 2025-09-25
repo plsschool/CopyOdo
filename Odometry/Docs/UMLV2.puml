@@ -1,0 +1,124 @@
+@startuml
+
+' ---------------- Interfaces ----------------
+interface IEncoderSensor {
+    + getDistance() : double
+    + getVelocity() : double
+    + reset() : void
+}
+
+interface IGyroSensor {
+    + getHeading() : double
+    + getRate() : double
+    + reset() : void
+}
+
+interface IMotorController {
+    + setVelocity(rpm : double) : void
+    + setPosition(units : double) : void
+    + getPosition() : double
+    + getVelocity() : double
+}
+
+' ---------------- Hardware classes ----------------
+class EncoderSensor {
+    - encoder : rev::RelativeEncoder
+    - wheelRadius : double
+    - gearRatio : double
+    + getDistance() : double
+    + getVelocity() : double
+    + reset() : void
+}
+
+class GyroSensor {
+    - ahrs : studica::AHRS
+    + getHeading() : double
+    + getRate() : double
+    + reset() : void
+}
+
+class SwerveMotor {
+    - motor : rev::spark::SparkMax
+    - motorId : int
+    + setVelocity(rpm : double) : void
+    + setPosition(units : double) : void
+    + getPosition() : double
+    + getVelocity() : double
+}
+
+' ---------------- Math / State ----------------
+class Vector2D {
+    - x : double
+    - y : double
+}
+
+class Pose {
+    - position : Vector2D
+    - heading : double
+    + updatePose(deltaDist : double, deltaHeading : double) : void
+    + resetPose(x : double, y : double, heading : double) : void
+}
+
+
+
+' ---------------- Logic ----------------
+class SwerveModule {
+    - driveMotor : IMotorController
+    - steerMotor : IMotorController
+    - driveEncoder : IEncoderSensor
+    - steerEncoder : IEncoderSensor
+    + setDesiredState(state : WheelModuleState) : void
+    + getCurrentState() : WheelModuleState
+    + reset() : void
+}
+
+class SwerveDriveKinematics {
+    - wheelOffsets : Vector2D[4]
+    - fieldRelative : bool
+    + toWheelStates(chassis : ChassisState, pose : Pose) : WheelModuleState[]
+    + toChassisState(wheelStates : WheelModuleState[]) : ChassisState
+    + normalizeWheelSpeeds(states : WheelModuleState[], maxSpeed : double) : void
+    + toggleFieldRelativeControl(enabled : bool) : void
+}
+
+class Odometry {
+    - pose : Pose
+    - encoders : IEncoderSensor[4]
+    - gyro : IGyroSensor
+    + updatePose() : void
+    + getPose() : Pose
+    + resetPose(x : double, y : double, heading : double) : void
+}
+
+class Robot {
+    - modules : SwerveModule[4]
+    - kinematics : SwerveDriveKinematics
+    - odometry : Odometry
+    - gyro : IGyroSensor
+    + RobotInit() : void
+    + TeleopPeriodic() : void
+}
+
+' ---------------- Inheritance ----------------
+IEncoderSensor <|.. EncoderSensor
+IGyroSensor <|.. GyroSensor
+IMotorController <|.. SwerveMotor
+
+' ---------------- Associations ----------------
+Robot "1" --> "4" SwerveModule
+Robot "1" --> "1" SwerveDriveKinematics
+Robot "1" --> "1" Odometry
+Robot "1" --> "1" IGyroSensor
+
+SwerveModule "1" --> "1" IEncoderSensor : drive
+SwerveModule "1" --> "1" IEncoderSensor : steer
+SwerveModule "1" --> "1" IMotorController : drive
+SwerveModule "1" --> "1" IMotorController : steer
+
+Odometry "1" --> "4" IEncoderSensor
+Odometry "1" --> "1" IGyroSensor
+
+SwerveDriveKinematics ..> Pose
+SwerveDriveKinematics ..> Vector2D
+
+@enduml

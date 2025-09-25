@@ -4,6 +4,7 @@
 
 class EncoderSensor {
 public:
+    static constexpr double PI = 3.14159265358979323846;
     // Constructor: motor object, wheel radius (m), optional gear ratio
     EncoderSensor(rev::spark::SparkMax& motor_, double wheelRadiusMeters, double gearRatio_ = 1.0);
 

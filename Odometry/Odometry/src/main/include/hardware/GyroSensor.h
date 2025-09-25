@@ -6,10 +6,10 @@
 class GyroSensor : public Sensor{
 public:
     GyroSensor();
-    double getValue() override;  // heading in radians
+    double getValue() const override;  // heading in radians
     double getHeading();
     void reset() override;
 private:
-    studica::AHRS ahrs;  // navX gyro
+    mutable studica::AHRS ahrs;  // navX gyro
 };
 

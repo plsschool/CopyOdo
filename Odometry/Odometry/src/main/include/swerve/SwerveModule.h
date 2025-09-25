@@ -8,6 +8,7 @@
 
 class SwerveModule {
 public:
+    static constexpr double PI = 3.14159265358979323846;
     SwerveModule(int driveID, int steerID, double wheelRadius, double gearRatio = 1.0);
 
     void setDesiredState(const WheelModuleState& state);

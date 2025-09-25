@@ -1,6 +1,8 @@
 #pragma once
+
 class MathUtils {
     public:
+    static constexpr double PI = 3.14159265358979323846;
     // Converts radians to degrees
     static double radToDeg(double radians);
 

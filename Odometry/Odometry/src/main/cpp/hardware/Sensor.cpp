@@ -2,5 +2,5 @@
 #include <iostream>
 
 void Sensor::logValue() const{
-    std::cout << "Sensor value: " <<getValue() << std::endl;
+    std::cout << "Sensor value: " << getValue() << std::endl;
 }
