@@ -58,71 +58,35 @@ void Robot::RobotInit() {
 
 void Robot::TeleopPeriodic() {
     // --- 1. Read joystick axes with deadband ---
-    double x = frc::ApplyDeadband(joystick.GetX(), 0.05);
-    double y = frc::ApplyDeadband(joystick.GetY(), 0.05);
-    double rot = frc::ApplyDeadband(joystick.GetZ(), 0.05);
+    double fwd = -frc::ApplyDeadband(joystick.GetRawAxis(1), 0.05); // forward/back
+    double str = frc::ApplyDeadband(joystick.GetRawAxis(0), 0.05);  // strafe
+    double rot = frc::ApplyDeadband(joystick.GetRawAxis(4), 0.05);  // rotation
 
     // --- 2. Scale joystick input to physical units ---
-    Vector2D velocity(
-        x * maxForwardSpeed,  // m/s
-        y * maxSideSpeed      // m/s
-    );
-    double omega = rot * maxAngularSpeed; // rad/s
+    fwd *= maxForwardSpeed;
+    str *= maxSideSpeed;
+    rot *= maxAngularSpeed;
 
-    odometry->update();
+    // --- 3. build chassis motion commands ---
+    ChassisState chassisState(Vector2D(fwd, str), rot);
 
-    Pose pose = odometry->getPose();
-    ChassisState chassisState(velocity, omega);
-    auto wheelStates = kinematics->toWheelStates(chassisState, pose);
+    // --- 4. Convert to wheel states ---
+    auto wheelStates = kinematics->toWheelStates(chassisState, odometry->getPose());
 
-    for (int i =0; i< NUM_WHEELS; i++){
+    // --- 5. Apply to modules ---
+    for (int i = 0; i < NUM_WHEELS; i++) {
         modules[i]->setDesiredState(wheelStates[i]);
     }
 
-        // --- 5. Debug output ---
-    printf("Pose: x=%.2f, y=%.2f, heading=%.2f deg\n",
-           pose.position.x, pose.position.y,
-           MathUtils::radToDeg(pose.getHeading()));
+    // --- 6. Update the odometry
+    odometry->update();
 
-    // // --- 3. Odometry update (Phase 1) ---
-    // double heading = gyro.getHeading();
-    // double deltaHeading = heading - lastHeading;
-
-    // // double avgDistance = 0.0;
-    // // for (auto& module : modules) {
-    // //     avgDistance += module->getCurrentState().speed * 0.02; // 20ms loop
-    // // }
-    // // avgDistance /= NUM_WHEELS;
-    // double avgDistance = 0.0;
-    // for (int i = 0; i < NUM_WHEELS; i++) {
-    //     double delta = modules[i]->getDriveDistance() - lastDistances[i];
-    //     lastDistances[i] = modules[i]->getDriveDistance();  // update for next loop
-    //     avgDistance += delta;
-    // }
-    // avgDistance /= NUM_WHEELS;
-
-    // pose.updatePose(avgDistance, deltaHeading);
-    // lastHeading = heading;
-
-    // // Debug print
-    // printf("Pose: x=%.2f, y=%.2f, heading=%.2f deg\n", pose.position.x, pose.position.y, MathUtils::radToDeg(pose.getHeading()));
-    
-    // printf("Drive distances: FL=%.3f FR=%.3f BL=%.3f BR=%.3f\n",
-    //        modules[0]->getDriveDistance(),
-    //        modules[1]->getDriveDistance(),
-    //        modules[2]->getDriveDistance(),
-    //        modules[3]->getDriveDistance());
-
-    // // --- 4. Build chassis state (Phase 2) ---0
-    // ChassisState chassisState(velocity, omega);
-
-    // // --- 5. Compute wheel states from chassis state ---
-    // auto wheelStates = kinematics->toWheelStates(chassisState, pose);
-
-    // // --- 6. Apply wheel states to each swerve module ---
-    // for (int i = 0; i < NUM_WHEELS; i++) {
-    //     modules[i]->setDesiredState(wheelStates[i]);
-    // }
+    // --- 7. Debug: print robot pose ---
+    Pose currentPose = odometry->getPose();
+    printf("Pose: x=%.2f, y=%.2f, heading=%.2f°\n",
+           currentPose.position.x,
+           currentPose.position.y,
+           currentPose.heading * 180.0 / M_PI);
 }
 
 void Robot::DisabledInit(){
