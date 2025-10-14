@@ -36,7 +36,7 @@
 class SwerveDriveKinematics {
 public:
     static constexpr int NUM_WHEELS = 4;
-    static constexpr double MAX_SPEED = 5.0; // adjust to your robot’s max speed (m/s)
+    static constexpr double MAX_SPEED = 2.0; // adjust to your robot’s max speed (m/s)
 
     explicit SwerveDriveKinematics(const std::array<Vector2D, NUM_WHEELS>& offsets);
 

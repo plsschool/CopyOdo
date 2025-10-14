@@ -85,6 +85,7 @@
 #include "swerve/SwerveDriveKinematics.h"
 #include <cmath>
 #include "math/MathUtils.h"
+#include <stdio.h>
 
 SwerveDriveKinematics::SwerveDriveKinematics(
     const std::array<Vector2D, NUM_WHEELS>& offsets
@@ -100,6 +101,9 @@ SwerveDriveKinematics::toWheelStates(const ChassisState& chassisState, const Pos
         velocity = velocity.rotate(-pose.getHeading());
     }
 
+    printf("Chassis: vel=(%.2f, %.2f) omega=%.2f rad/s\n",
+       chassisState.velocity.x, chassisState.velocity.y, chassisState.omega);
+
     for (int i = 0; i < NUM_WHEELS; ++i) {
         Vector2D v_rot(
             -chassisState.omega * wheelOffsets[i].y,
@@ -110,6 +114,8 @@ SwerveDriveKinematics::toWheelStates(const ChassisState& chassisState, const Pos
 
         states[i].speed = v_total.magnitude();
         states[i].angle = MathUtils::normalizeAngle(std::atan2(v_total.y, v_total.x));
+        printf("Wheel %d: v_rot=(%.2f, %.2f) v_total=(%.2f, %.2f)\n",
+            i, v_rot.x, v_rot.y, v_total.x, v_total.y);
     }
 
     normalizeWheelSpeeds(states, MAX_SPEED);

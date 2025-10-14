@@ -9,7 +9,15 @@ GyroSensor::GyroSensor() : ahrs(studica::AHRS::kMXP_SPI, studica::AHRS::k50Hz)
 
 double GyroSensor::getValue() const {
     // Convert degrees to radians
-    return ahrs.GetAngle() * std::numbers::pi / 180.0;
+    //return ahrs.GetAngle() * std::numbers::pi / 180.0;
+    // Convert to radians and normalize to [-π, π]
+    double angleRad = ahrs.GetAngle() * std::numbers::pi / 180.0;
+    angleRad = std::fmod(angleRad, 2.0 * std::numbers::pi);
+    if (angleRad > std::numbers::pi)
+        angleRad -= 2.0 * std::numbers::pi;
+    else if (angleRad < -std::numbers::pi)
+        angleRad += 2.0 * std::numbers::pi;
+    return angleRad;
 }
 
 double GyroSensor::getHeading() const{

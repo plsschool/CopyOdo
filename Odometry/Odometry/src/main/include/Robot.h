@@ -45,7 +45,7 @@ class Robot : public frc::TimedRobot {
   // doesn't have undefined behavior and potentially crash.
   std::optional<frc2::CommandPtr> m_autonomousCommand;
   static constexpr int NUM_WHEELS = 4;
-
+  static constexpr double PI = 3.14159265358979323846;
   frc::Joystick joystick{0};
 
   std::array<SwerveModule*, NUM_WHEELS> modules;

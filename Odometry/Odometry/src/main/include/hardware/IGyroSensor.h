@@ -1,3 +1,5 @@
+#pragma once
+
 // For angular orientation sensors (e.g., navX gyro)
 class IGyroSensor {
 public:
