@@ -18,6 +18,8 @@ namespace OperatorConstants {
 
 inline constexpr int kDriverControllerPort = 0;
 
+    constexpr double PI = 3.14159265358979323846;
+
     constexpr double TRACK_WIDTH = 0.515;
     constexpr double WHEEL_BASE  = 0.515;
 
@@ -29,5 +31,8 @@ inline constexpr int kDriverControllerPort = 0;
     constexpr double FRONT_RIGHT_OFFSET = 0.0;
     constexpr double BACK_LEFT_OFFSET   = M_PI;
     constexpr double BACK_RIGHT_OFFSET  = 0.0;
+
+    constexpr double DRIVE_DEADBAND = 0.2;
+    constexpr double STEER_MOTOR_KP = 0.25;
 
 }  // namespace OperatorConstants

@@ -33,6 +33,12 @@ void SwerveModule::setDesiredState(const WheelModuleState& state) {
         percentOutput = -percentOutput;
     }
 
+   // Apply a small deadband so tiny commands don't spin motors
+    const double DRIVE_DEADBAND = 0.02; // 2% output threshold (tune if needed)
+    if (std::fabs(percentOutput) < DRIVE_DEADBAND) {
+        percentOutput = 0.0;
+    }
+
     driveMotor.Set(percentOutput);
 
     // Steering motor control using absolute encoder
