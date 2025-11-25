@@ -90,7 +90,9 @@ void Robot::RobotInit() {
     odometry->resetPose(0,0,0);
     printf("Odometry initialized\n"); fflush(stdout);
 
-    gyro.reset();
+    // Create gyro and keep ownership in Robot. Pass a non-owning pointer to Odometry.
+    gyro = std::make_unique<GyroSensor>();        // Robot::gyro is std::unique_ptr<GyroSensor> member
+    gyro->reset();
 
 
 

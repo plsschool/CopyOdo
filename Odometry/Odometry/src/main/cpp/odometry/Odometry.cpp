@@ -5,10 +5,10 @@
 
 Odometry::Odometry(
     const std::array<std::shared_ptr<SwerveModule>, SwerveConstants::NUMBER_OF_MODULES>& modules_,
-    std::unique_ptr<IGyroSensor> gyro_
+    IGyroSensor* gyro_
 )
     : modules(modules_),               // <-- copies shared_ptr (increments refcount)
-      gyro(std::move(gyro_)),          // <-- transfer ownership
+      gyro(gyro_),          // <-- transfer ownership
       pose()
 {
     // Record initial distances
@@ -16,10 +16,24 @@ Odometry::Odometry(
         lastDistances[i] = modules[i]->getDriveDistance();
     }
 
-    lastHeading = gyro->getHeading();
+    // Guard: ensure the gyro pointer is valid at construction time
+    if (gyro == nullptr) {
+        printf("Odometry: ERROR - gyro pointer is null on construction\n");
+        lastHeading = 0.0;
+    } else {
+        lastHeading = gyro->getHeading();
+    }
 }
 
 void Odometry::update() {
+
+    if (!gyro) {
+        // If gyro ever becomes null (shouldn't if caller preserves lifetime),
+        // we skip heading updates to avoid crashes.
+        printf("Odometry::update WARNING: gyro is null, skipping heading update\n");
+        return;
+    }
+    
     // --- 1. Read gyro --- (absolute heading in rad)
     double currentHeading = gyro->getHeading();
 

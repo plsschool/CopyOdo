@@ -11,7 +11,7 @@ class Odometry : public Module {
 public:
     Odometry(
         const std::array<std::shared_ptr<SwerveModule>, SwerveConstants::NUMBER_OF_MODULES>& modules_,
-        std::unique_ptr<IGyroSensor> gyro_
+        IGyroSensor* gyro_
     );
 
     void update() override;
@@ -23,7 +23,7 @@ private:
     std::array<std::shared_ptr<SwerveModule>, SwerveConstants::NUMBER_OF_MODULES> modules;
 
     // Gyro is uniquely owned by Odometry
-    std::unique_ptr<IGyroSensor> gyro;
+    IGyroSensor* gyro;
 
     Pose pose;
 

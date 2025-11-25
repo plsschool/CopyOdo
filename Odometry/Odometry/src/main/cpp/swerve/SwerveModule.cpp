@@ -53,6 +53,7 @@ void SwerveModule::setDesiredState(const WheelModuleState& state) {
     }
     printf("SwerveModule: setDesiredState - speed: %.2f, angle: %.2f (rad)\n", state.speed, state.angle);
     driveMotor->Set(percentOutput);
+    
 
     // Steering motor control using absolute encoder
     double targetAngle = optimizeSteerAngle(currentAngle, state.angle);

@@ -52,7 +52,7 @@ class Robot : public frc::TimedRobot {
   std::array<std::shared_ptr<SwerveModule>, SwerveConstants::NUM_WHEELS> modules;
   std::unique_ptr<SwerveDriveKinematics> kinematics;
   Pose pose;
-  GyroSensor gyro;
+  std::unique_ptr<GyroSensor> gyro;
 
   std::unique_ptr<Odometry> odometry;
 
