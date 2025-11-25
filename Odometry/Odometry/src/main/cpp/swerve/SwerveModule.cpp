@@ -51,7 +51,7 @@ void SwerveModule::setDesiredState(const WheelModuleState& state) {
     if (std::fabs(percentOutput) < DRIVE_DEADBAND) {
         percentOutput = 0.0;
     }
-
+    printf("SwerveModule: setDesiredState - speed: %.2f, angle: %.2f (rad)\n", state.speed, state.angle);
     driveMotor->Set(percentOutput);
 
     // Steering motor control using absolute encoder
@@ -59,6 +59,7 @@ void SwerveModule::setDesiredState(const WheelModuleState& state) {
     double error = MathUtils::normalizeAngle(targetAngle - currentAngle);
 
     double output = std::clamp(PIDGains::STEER_kP* error, -1.0, 1.0);
+    printf("SwerveModule: setDesiredState - speed: %.2f, angle: %.2f (rad)\n", state.speed, state.angle);
     steerMotor->Set(output);
 
     if (++loopCount % 10 == 0) {

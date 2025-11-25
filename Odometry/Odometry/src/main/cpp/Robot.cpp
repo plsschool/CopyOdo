@@ -122,6 +122,7 @@ void Robot::TeleopPeriodic() {
 
     // --- 5. Apply wheel states to modules using absolute steering encoder ---
     for (size_t i = 0; i < SwerveConstants::NUM_WHEELS; i++) {
+        printf("Teleop: Setting wheel %zu: speed=%.2f, angle=%.2f\n", i, wheelStates[i].speed, wheelStates[i].angle);
         modules[i]->setDesiredState(wheelStates[i]);
     }
 
