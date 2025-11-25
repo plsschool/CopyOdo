@@ -47,17 +47,19 @@ void Robot::RobotInit() {
         std::unique_ptr<IMotorController> driveMotor;
         std::unique_ptr<IMotorController> steerMotor;
 
-        // Create drive motor
-        if (cfg.driveType == MotorType::Max)
-            driveMotor = std::make_unique<SparkMaxMotorController>(cfg.driveID, rev::spark::SparkMax::MotorType::kBrushless);
-        else
-            driveMotor = std::make_unique<SparkFlexMotorController>(cfg.driveID, rev::spark::SparkFlex::MotorType::kBrushless);
+      // ... inside your module creation loop in Robot::RobotInit()
 
-        // Create steer motor
-        if (cfg.steerType == MotorType::Max)
-            steerMotor = std::make_unique<SparkMaxMotorController>(cfg.steerID, rev::spark::SparkMax::MotorType::kBrushless);
-        else
-            steerMotor = std::make_unique<SparkFlexMotorController>(cfg.steerID, rev::spark::SparkFlex::MotorType::kBrushless);
+    // Create drive motor
+    if (cfg.driveType == MotorType::Max)
+        driveMotor = std::make_unique<SparkMaxMotorController>(cfg.driveID, rev::spark::SparkMax::MotorType::kBrushless, /*useAbsoluteForPosition=*/false);
+    else
+        driveMotor = std::make_unique<SparkFlexMotorController>(cfg.driveID, rev::spark::SparkFlex::MotorType::kBrushless, /*useAbsoluteForPosition=*/false);
+
+    // Create steer motor (use absolute encoder reading here)
+    if (cfg.steerType == MotorType::Max)
+        steerMotor = std::make_unique<SparkMaxMotorController>(cfg.steerID, rev::spark::SparkMax::MotorType::kBrushless, /*useAbsoluteForPosition=*/true);
+    else
+        steerMotor = std::make_unique<SparkFlexMotorController>(cfg.steerID, rev::spark::SparkFlex::MotorType::kBrushless, /*useAbsoluteForPosition=*/true);
 
         modules[i] = std::make_shared<SwerveModule>(
             std::move(driveMotor), std::move(steerMotor),
@@ -70,35 +72,28 @@ void Robot::RobotInit() {
     kinematics->toggleFieldRelativeControl(false);
     printf("Kinematics initialized\n"); fflush(stdout);
 
-    
-
     // Reset drive encoders only
     for (size_t i = 0; i < SwerveConstants::NUM_WHEELS; i++) {
         modules[i]->reset();
     }
     printf("Reset drive encoders\n"); fflush(stdout);
 
-        // Print initial absolute angles
+    // Print initial absolute angles
     for (size_t i = 0; i < SwerveConstants::NUM_WHEELS; i++) {
         printf("Wheel %zu initial absolute angle=%.3f rad\n", i, modules[i]->getSteerAngle());
     }
 
-    // Initialize odometry
-    //odometry = std::make_unique<Odometry>(modules, &gyro);
-    // odometry = std::make_unique<Odometry>(std::move(modules), std::make_unique<GyroSensor>());
-    odometry = std::make_unique<Odometry>(modules, std::make_unique<GyroSensor>());
-    odometry->resetPose(0,0,0);
-    printf("Odometry initialized\n"); fflush(stdout);
-
-    // Create gyro and keep ownership in Robot. Pass a non-owning pointer to Odometry.
-    gyro = std::make_unique<GyroSensor>();        // Robot::gyro is std::unique_ptr<GyroSensor> member
+    // --- create and own the gyro first, then pass non-owning pointer into Odometry ---
+    gyro = std::make_unique<GyroSensor>();        // Robot::gyro is std::unique_ptr<GyroSensor>
     gyro->reset();
 
+    odometry = std::make_unique<Odometry>(modules, gyro.get());
+    odometry->resetPose(0, 0, 0);
 
+    printf("Gyro and Odometry initialized (gyro owned by Robot, passed raw ptr to Odometry)\n"); fflush(stdout);
 
     printf("RobotInit complete.\n");
 }
-
 
 void Robot::TeleopPeriodic() {
     // printf("FL absolute encoder: %.3f rad\n", modules[0]->getSteerAngle());

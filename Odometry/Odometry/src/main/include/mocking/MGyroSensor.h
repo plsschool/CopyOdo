@@ -8,6 +8,6 @@ private:
 public:
     MockGyroSensor(double initialAngle, double initialRate);
     double getHeading() const override;
-    void getRate(double Rate);
+    double getRate() const override;
     void reset() override;
 };

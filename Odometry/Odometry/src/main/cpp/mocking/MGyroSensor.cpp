@@ -6,8 +6,9 @@ double MockGyroSensor::getHeading() const {
     return angle;
 }
 
-void MockGyroSensor::getRate(double Rate) {
-    this->rate = rate;
+// Signature should return double and be const to match the real IGyroSensor interface
+double MockGyroSensor::getRate() const {
+    return rate;
 }
 
 void MockGyroSensor::reset(){}
